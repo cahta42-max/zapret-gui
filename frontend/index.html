@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zapret GUI</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+  <!-- не админ (dev-режим) -->
+  <div id="admin-banner" class="banner hidden win-only">
+    ⚠ Нет прав администратора — управление zapret будет недоступно
+  </div>
+
+  <header class="topbar">
+    <div class="brand">ZAPRET<span class="brand-dim">_gui</span></div>
+    <div class="ver-chips">
+      <span class="chip" id="chip-app"></span>
+      <span class="chip" id="chip-zapret"></span>
+      <span class="chip" id="chip-tgws"></span>
+    </div>
+    <button id="btn-logs" class="btn btn-mini" title="Журнал событий">логи</button>
+    <button id="btn-settings" class="icon-btn" title="Настройки">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </header>
+
+  <nav class="tabbar" id="tabbar">
+    <button class="tab active" data-tab="zapret">Обход · zapret</button>
+    <button class="tab" data-tab="tgws">Telegram · tg-ws-proxy</button>
+  </nav>
+
+  <!-- ============================== ВКЛАДКА: ZAPRET ============================== -->
+  <main class="cards" id="tab-zapret">
+    <section class="card" id="card-zapret">
+      <div class="card-head">
+        <div class="card-title">
+          <span class="dot" id="dot-zapret"></span>
+          <h2>zapret</h2>
+          <span class="sub" id="zapret-mode"></span>
+        </div>
+        <span class="pill pill-off" id="pill-zapret">выключен</span>
+      </div>
+      <p class="desc">DPI-обход для YouTube, Discord и других сайтов</p>
+
+      <div class="row">
+        <select id="strategy-select" class="select" title="Стратегия"></select>
+        <button id="zapret-main-btn" class="btn btn-primary">Запустить</button>
+        <button id="zapret-restart-btn" class="btn" title="Перезапустить zapret с текущей стратегией — применяется после правки своих доменов">Перезапустить</button>
+      </div>
+
+      <div class="row subrow">
+        <div class="seg-group win-only" title="Game Filter (только Windows)">
+          <span class="seg-label">игры</span>
+          <div class="seg" id="seg-game">
+            <button data-v="off">выкл</button><button data-v="tcp">TCP</button>
+            <button data-v="udp">UDP</button><button data-v="all">TCP+UDP</button>
+          </div>
+        </div>
+        <div class="seg-group" title="IPSet Filter">
+          <span class="seg-label">ipset</span>
+          <div class="seg" id="seg-ipset">
+            <button data-v="none">нет</button><button data-v="any">любые</button><button data-v="loaded">список</button>
+          </div>
+          <button id="ipset-update-btn" class="btn btn-mini" title="Обновить списки из дистрибутива">⟳</button>
+        </div>
+      </div>
+
+      <div class="row tiny-links">
+        <a href="#" id="open-service-bat" class="win-only">service.bat</a>
+        <a href="#" id="open-strategy-bat" class="win-only">general.bat</a>
+        <a href="#" id="open-zapret-folder">папка</a>
+        <label class="check win-only">
+          <input type="checkbox" id="chk-zapret-updates" />
+          проверка обновлений zapret
+        </label>
+        <label class="check">
+          <input type="checkbox" id="chk-zapret-autorun" title="zapret запустится сам при старте системы и GUI — с последней выбранной стратегией" />
+          автозапуск при входе
+        </label>
+      </div>
+    </section>
+
+    <section class="card" id="card-domains">
+      <div class="card-head">
+        <div class="card-title">
+          <h2>свои домены</h2>
+          <span class="sub">что маскировать, а что не трогать</span>
+        </div>
+        <span class="pill pill-warn hidden" id="domains-dirty-pill" title="Изменения вступят в силу после перезапуска zapret">не применено</span>
+      </div>
+      <p class="desc">«маскировать» — сайт без zapret не открывается (душится провайдером); «исключить» — сайт ломается из-за zapret; «исключить IP» — адрес или подсеть, которую zapret трогать не должен.</p>
+
+      <div class="row">
+        <input id="domain-input" class="input" type="text" spellcheck="false" placeholder="example.com" />
+        <select id="domain-action" class="select" title="Что делать с этим доменом">
+          <option value="general">маскировать</option>
+          <option value="exclude">исключить</option>
+          <option value="ipset-exclude">исключить IP/CIDR</option>
+        </select>
+        <button id="domain-add-btn" class="btn btn-primary">Добавить</button>
+        <button id="domain-autocheck-btn" class="btn win-only" title="Проверит сайт с обходом и без него, сам выберет «маскировать» или «исключить» и перезапустит zapret (интернет может на несколько секунд прерваться)">Проверить и добавить</button>
+      </div>
+
+      <div id="domain-check-result" class="hidden"></div>
+
+      <div class="domain-groups" id="domain-groups"></div>
+
+      <p class="desc domain-note">Применяется после перезапуска zapret — «Проверить и добавить» делает это сам. Списки можно полностью очистить — это безопасно.</p>
+    </section>
+  </main>
+
+  <!-- ============================== ТЕСТ СТРАТЕГИЙ (вкладка zapret) ============================== -->
+  <section class="card card-test" id="card-test">
+    <div class="card-head">
+      <div class="card-title">
+        <h2>тест стратегий</h2>
+        <span class="sub" id="test-hint">проверка доступности сайтов для каждой стратегии zapret</span>
+      </div>
+      <button id="test-toggle" class="btn btn-mini">развернуть</button>
+    </div>
+
+    <div id="test-body" class="hidden">
+      <div class="row">
+        <input id="test-url-input" class="input" type="text" placeholder="свой хост для проверки (необязательно): полностью заменит набор целей прогона" />
+        <button id="test-url-btn" class="btn" title="Проверить один URL при текущей стратегии zapret">Тест URL</button>
+        <button id="test-full-btn" class="btn btn-primary" title="Перебрать все стратегии и измерить доступность сайтов (займёт от нескольких минут до получаса)">Полный тест</button>
+      </div>
+
+      <div class="test-progress hidden" id="test-progress-wrap">
+        <span id="test-progress-label"></span>
+        <div class="bar"><div class="bar-fill" id="test-progress-bar"></div></div>
+        <div class="brand-dim" id="test-progress-note" style="font-size:11px">во время теста обход выключается — интернет может временно деградировать; это нормально</div>
+      </div>
+
+      <div id="test-url-result" class="hidden"></div>
+
+      <div id="test-results" class="hidden">
+        <div class="test-rec hidden" id="test-rec"></div>
+        <div class="test-scroll">
+          <table class="test-table">
+            <thead><tr><th>стратегия</th><th title="успешные проверки (HTTP/TLS по ~36 хостам)">✓ ок</th><th title="проваленные проверки">✗ фейл</th><th title="DPI-паттерн 16-20KB — цензор режет стратегию">⚠ dpi-блок</th><th></th></tr></thead>
+            <tbody id="test-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== ВКЛАДКА: TELEGRAM ============================== -->
+  <main class="cards cards-single hidden" id="tab-tgws">
+    <section class="card" id="card-tgws">
+      <div class="card-head">
+        <div class="card-title">
+          <span class="dot" id="dot-tgws"></span>
+          <h2>tg-ws-proxy</h2>
+          <span class="sub" id="tgws-port"></span>
+        </div>
+        <span class="pill pill-off" id="pill-tgws">выключен</span>
+      </div>
+      <p class="desc">Ускорение Telegram Desktop через WebSocket-прокси</p>
+
+      <div class="row">
+        <button id="tgws-main-btn" class="btn btn-primary">Запустить</button>
+        <button id="tgws-open-btn" class="btn" title="Автоматически настроить прокси в Telegram Desktop через ссылку tg://proxy">Подключить Telegram</button>
+      </div>
+
+      <div class="row tiny-links">
+        <label class="check"><input type="checkbox" id="chk-tgws-autostart" /> автозапуск при входе</label>
+        <a href="#" id="open-tgws-folder">папка</a>
+        <a href="#" id="remove-old-autostart" class="warn-link hidden">убрать старый автозапуск</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================== КОНСОЛЬ ============================== -->
+  <section class="console hidden" id="console-wrap">
+    <div class="console-head">
+      <span>журнал</span>
+      <span>
+        <button id="btn-clear-log" class="btn btn-mini">очистить</button>
+        <button id="btn-close-log" class="btn btn-mini" title="Скрыть журнал">закрыть</button>
+      </span>
+    </div>
+    <pre id="log"></pre>
+  </section>
+
+  <!-- ============================== ОВЕРЛЕИ ============================== -->
+
+  <!-- первый запуск: скачивание -->
+  <div id="overlay-setup" class="overlay hidden">
+    <div class="modal">
+      <h3>Первичная настройка</h3>
+      <p class="modal-text">Скачиваю компоненты с GitHub…</p>
+      <div class="dl-task"><label>zapret</label><div class="bar"><div class="bar-fill" id="bar-zapret"></div></div><span id="bar-zapret-txt">…</span></div>
+      <div class="dl-task"><label>tg-ws-proxy</label><div class="bar"><div class="bar-fill" id="bar-tgws"></div></div><span id="bar-tgws-txt">…</span></div>
+      <p class="modal-note">Если загрузка не начинается — проверьте доступ к github.com (возможно, потребуется VPN).</p>
+    </div>
+  </div>
+
+  <!-- общие прогресс-модалки (обновление) -->
+  <div id="overlay-progress" class="overlay hidden">
+    <div class="modal">
+      <h3 id="progress-title">Обновление…</h3>
+      <div class="bar"><div class="bar-fill" id="bar-generic"></div></div>
+      <p class="modal-text" id="progress-stage"></p>
+    </div>
+  </div>
+
+  <!-- диагностика -->
+  <div id="overlay-diag" class="overlay hidden">
+    <div class="modal modal-wide">
+      <h3>Диагностика</h3>
+      <div id="diag-list"></div>
+      <div class="modal-actions"><button class="btn btn-primary" id="diag-close">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- настройки -->
+  <div id="overlay-settings" class="overlay hidden">
+    <div class="modal">
+      <h3>Настройки</h3>
+      <label class="check"><input type="checkbox" id="chk-autostart-gui" /> запускать GUI при входе в систему</label>
+      <label class="check"><input type="checkbox" id="chk-start-minimized" /> стартовать свёрнутым в трей</label>
+      <div class="settings-path">
+        <span class="seg-label">каталог компонентов</span>
+        <code id="settings-tools-dir"></code>
+      </div>
+      <div class="row win-only" style="margin-top:8px">
+        <button id="btn-defender" class="btn btn-mini" title="Добавить каталоги приложения в исключения Windows Defender — иначе антивирус может карантинить драйвер WinDivert">исключение в Defender</button>
+        <span class="seg-label">защита от карантина файлов</span>
+      </div>
+      <div class="settings-sep"></div>
+      <div class="settings-block">
+        <span class="settings-h">zapret</span>
+        <div class="row">
+          <button id="zapret-update-btn" class="btn btn-mini" title="Обновить до последней версии">Обновить zapret</button>
+          <button id="zapret-versions-btn" class="btn btn-mini" title="Выбрать конкретную версию zapret">версии…</button>
+          <button id="zapret-remove-svc-btn" class="btn btn-mini btn-danger win-only" title="Полностью удалить службу Windows «zapret»">Удалить службу</button>
+        </div>
+      </div>
+      <div class="settings-sep"></div>
+      <div class="settings-block">
+        <span class="settings-h">tg-ws-proxy</span>
+        <div class="row">
+          <button id="tgws-update-btn" class="btn btn-mini">Обновить tg-ws-proxy</button>
+        </div>
+      </div>
+      <div class="modal-actions row">
+        <button class="btn" id="btn-diagnostics">Диагностика</button>
+        <button class="btn btn-primary" id="settings-close">Готово</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- версии zapret -->
+  <div id="overlay-versions" class="overlay hidden">
+    <div class="modal">
+      <h3>Версии zapret</h3>
+      <p class="modal-text">Иногда под сеть провайдера лучше подходит прошлая версия — выберите и установите.</p>
+      <div id="versions-list"><p class="modal-text">Загружаю список…</p></div>
+      <div class="modal-actions"><button class="btn btn-primary" id="versions-close">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <footer class="footer">
+    <a href="#" id="link-gh-zapret">zapret ↗</a>
+    <a href="#" id="link-gh-tgws">tg-ws-proxy ↗</a>
+    <span class="footer-dim">закрытие окна сворачивает его в трей · выход через меню иконки</span>
+  </footer>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
