@@ -1,0 +1,16 @@
+{
+	"fixed": {
+		"file_version": "0.2.8.2",
+		"product_version": "0.2.8.2"
+	},
+	"info": {
+		"0409": {
+			"ProductVersion": "0.2.8.2",
+			"CompanyName": "",
+			"FileDescription": "GUI для zapret и tg-ws-proxy",
+			"LegalCopyright": "",
+			"ProductName": "Zapret GUI",
+			"Comments": "Управление DPI-обходом zapret и прокси tg-ws-proxy"
+		}
+	}
+}

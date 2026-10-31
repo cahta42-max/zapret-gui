@@ -1,0 +1,23 @@
+dist
+build/bin
+node_modules
+frontend/dist
+vendor/
+tools/darcheck/overlay.json
+zapret_gui
+zapret_gui.exe
+error.rtf
+tools/mac-agent-kit/repo.bundle
+tools/mac-agent-kit/pi-config/
+tools/research/
+tools/proc.txt
+tools/zipcheck/
+tools/qatemp/
+
+# внутренние заметки агентов — не для публики
+AGENT-CONTEXT.md
+log_terminal.md
+qa-*.txt
+tools/mac-agent-kit/
+tools/pi-extensions/
+tools/qatemp/
