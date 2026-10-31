@@ -1,0 +1,16 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "zapret_gui",
+  "outputfilename": "ZapretGui",
+  "version": "0.2.2-mac.2",
+  "info": {
+    "productVersion": "0.2.2-mac.2"
+  },
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "buzmakov"
+  }
+}
